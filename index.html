@@ -1,125 +1,243 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Login - All Viral Videos</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    }
-
-    .login-box {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 40px;
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      width: 300px;
-      text-align: center;
-      color: white;
-    }
-
-    .login-box h2 {
-      margin-bottom: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      outline: none;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-
-    .login-btn {
-      background: #00c6ff;
-      color: white;
-    }
-
-    .login-btn:hover {
-      background: #0072ff;
-    }
-
-    .register-btn {
-      background: transparent;
-      border: 1px solid white;
-      color: white;
-    }
-
-    .register-btn:hover {
-      background: white;
-      color: #203a43;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:white;
+}
+.box{
+  background:rgba(0,0,0,0.8);
+  padding:30px;
+  border-radius:10px;
+  width:320px;
+  text-align:center;
+}
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:5px;
+}
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:5px;
+  background:#00c6ff;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+a{
+  color:#00c6ff;
+  cursor:pointer;
+  font-size:14px;
+}
+.hidden{display:none;}
+</style>
 </head>
 <body>
 
-<div class="login-box">
-  <h2>Silahkan Login Terlebih dahulu</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button class="login-btn" onclick="login()">Login</button>
-  <button class="register-btn" onclick="daftar()">Daftar</button>
+<div class="box">
+<h2 id="title">Login</h2>
+
+<input type="text" id="name" placeholder="Nama Lengkap" class="hidden">
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()" id="loginBtn">Login</button>
+<button onclick="register()" id="registerBtn" class="hidden">Daftar</button>
+<button onclick="resetPassword()" id="resetBtn" class="hidden">Kirim Reset Password</button>
+
+<p>
+<a onclick="showRegister()">Daftar</a> |
+<a onclick="showLogin()">Login</a> |
+<a onclick="showReset()">Lupa Sandi?</a>
+</p>
+
+<p id="msg"></p>
 </div>
 
-<!-- Firebase CDN v8 (lebih gampang dipakai) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script type="module">
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCsJasXYe3hK7EvzCBfIKHe8LHvRwAIzkc",
-    authDomain: "all-viral-videos-links.firebaseapp.com",
-    projectId: "all-viral-videos-links",
-    storageBucket: "all-viral-videos-links.firebasestorage.app",
-    messagingSenderId: "562874334147",
-    appId: "1:562874334147:web:2bf0e3517b5c62d0ab5b76",
-    measurementId: "G-RWPGF4F57J"
-  };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  updateProfile,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+const firebaseConfig = {
+  apiKey: "AIzaSyCsJasXYe3hK7EvzCBfIKHe8LHvRwAIzkc",
+  authDomain: "all-viral-videos-links.firebaseapp.com",
+  projectId: "all-viral-videos-links",
+  storageBucket: "all-viral-videos-links.firebasestorage.app",
+  messagingSenderId: "562874334147",
+  appId: "1:562874334147:web:2bf0e3517b5c62d0ab5b76",
+  measurementId: "G-RWPGF4F57J"
+};
 
-  function daftar() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => alert("Daftar berhasil! Silakan login."))
-      .catch(error => alert(error.message));
+window.register = async function(){
+  const name = nameInput.value;
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  try{
+    const userCredential = await createUserWithEmailAndPassword(auth,email,password);
+    await updateProfile(userCredential.user,{displayName:name});
+    await sendEmailVerification(userCredential.user);
+    await signOut(auth);
+    msg.innerText="Akun dibuat! Cek email untuk verifikasi.";
+  }catch(err){
+    msg.innerText=err.message;
   }
+}
 
-  function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+window.login = async function(){
+  const email = emailInput.value;
+  const password = passwordInput.value;
 
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        alert("Login berhasil!");
-        window.location.href = "https://allviralvideo996.blogspot.com/2023/11/blog-post.html";
-      })
-      .catch(error => alert(error.message));
+  try{
+    const userCredential = await signInWithEmailAndPassword(auth,email,password);
+
+    if(userCredential.user.emailVerified){
+      window.location.href="dashboard.html";
+    }else{
+      msg.innerText="Email belum diverifikasi!";
+      await signOut(auth);
+    }
+
+  }catch(err){
+    msg.innerText=err.message;
   }
+}
+
+window.resetPassword = async function(){
+  try{
+    await sendPasswordResetEmail(auth,emailInput.value);
+    msg.innerText="Link reset dikirim ke email.";
+  }catch(err){
+    msg.innerText=err.message;
+  }
+}
+
+window.showRegister = function(){
+  title.innerText="Daftar";
+  name.classList.remove("hidden");
+  loginBtn.classList.add("hidden");
+  registerBtn.classList.remove("hidden");
+  resetBtn.classList.add("hidden");
+}
+
+window.showLogin = function(){
+  title.innerText="Login";
+  name.classList.add("hidden");
+  loginBtn.classList.remove("hidden");
+  registerBtn.classList.add("hidden");
+  resetBtn.classList.add("hidden");
+}
+
+window.showReset = function(){
+  title.innerText="Lupa Sandi";
+  name.classList.add("hidden");
+  loginBtn.classList.add("hidden");
+  registerBtn.classList.add("hidden");
+  resetBtn.classList.remove("hidden");
+}
+
 </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f2027;
+  color:white;
+  text-align:center;
+  padding-top:50px;
+}
+button{
+  padding:10px 20px;
+  border:none;
+  background:#00c6ff;
+  color:white;
+  border-radius:5px;
+  cursor:pointer;
+  margin:10px;
+}
+</style>
+</head>
+<body>
 
+<h2>Dashboard Profil</h2>
+<p id="userName"></p>
+<p id="userEmail"></p>
+
+<button onclick="goBlog()">Masuk ke Blog</button>
+<button onclick="logout()">Logout</button>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCsJasXYe3hK7EvzCBfIKHe8LHvRwAIzkc",
+  authDomain: "all-viral-videos-links.firebaseapp.com",
+  projectId: "all-viral-videos-links",
+  storageBucket: "all-viral-videos-links.firebasestorage.app",
+  messagingSenderId: "562874334147",
+  appId: "1:562874334147:web:2bf0e3517b5c62d0ab5b76",
+  measurementId: "G-RWPGF4F57J"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth,(user)=>{
+  if(user){
+    userName.innerText="Nama: "+(user.displayName || "-");
+    userEmail.innerText="Email: "+user.email;
+  }else{
+    window.location.href="index.html";
+  }
+});
+
+window.logout = async function(){
+  await signOut(auth);
+  window.location.href="index.html";
+}
+
+window.goBlog = function(){
+  window.location.href="https://allviralvideo996.blogspot.com/2023/11/blog-post.html";
+}
+
+</script>
 </body>
 </html>
